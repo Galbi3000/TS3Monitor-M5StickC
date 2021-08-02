@@ -15,6 +15,7 @@ The new features added include the following:
 Planned features in comming updates:
 - Dual core functionality to make the display and WiFi routines run on different cores.
 - Screen off timer to save power. To wake up on button press or client number update from the server.
+- A battery status indicator in the display.
 
 How to use:
 - Open up the Arduino IDE and chose from the file menu "Open..."
