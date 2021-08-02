@@ -23,7 +23,7 @@ How to use:
 - Go to the Globals.h tab and replace "your-ssid" with the ID of your WiFi connection and replace "your-password" with the password.
 - Further down in the file change telnetHost address to the address of your TS3 Server.
 - Next edit the queryLogin and queryPass entries to match the credentials given to you by your TS3 server for remote queries.
-- Make sure your M5StickC is selected in the devices and its correct COM port is selected.
+- Make sure the correct device is selected in the Tools menu and its correct COM port is selected.
 - Compile and upload the sketch.
 
 Here is a photo of the M5StickC running the sketch:
