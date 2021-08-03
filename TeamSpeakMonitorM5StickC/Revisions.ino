@@ -101,7 +101,6 @@ TODO:
   but it's not high importance now the scroller does not pause.
 - Make the display turn off after a minute to save power.
 - Turn the display back on with a press of button A.
-- Turn the display back on if a client enters or leaves the TeamSpeak server.
 - Add a battery status indicator to the display.
 
 BUGS:
