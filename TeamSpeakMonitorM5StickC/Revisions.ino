@@ -1,9 +1,22 @@
 /*
 Note: This is not an actual source file. The whole file has been commented out to prevent errors.
+The Arduino IDE would not let me include a text file as a tab so I went with this method!
 
 TeamSpeakMonitorM5StickC Revisions
 
-Current version 3.21
+Current version 3.22
+
+3.22 - Fixed smooth scrolling pausing during calls to the TeamSpeak server. I chose to simply call
+       updateDisplay() during loops in the TeamSpeak functions. This meant re-ordering the include
+       statements to make sure Display.h is included before TeamSpeakFunctions.h.
+       I went against using the second core as I am not experienced enough yet to do dual core on
+       the ESP32! The method I used works fine anyway.
+     - Added a pause() function into Display.h that does the same as delay() but also updates the
+       display while waiting for the specified milliseconds.
+     - Set the display brightness (backlight) to 0 while the screen is blank when there are no
+       clients on the server. Resets back to 96 when there is something to be displayed. Hopefully
+       this reduces the battery use until I can impliment a means to turn the display off after a
+       timeout and back on with a button press or client number changes.
 
 3.21 - Added colour to the display. Title in cyan, boot status messages in white with yellow
        highlights, finished message in green. Main display title cyan, client count white,
@@ -78,10 +91,8 @@ TeamSpeakMonitor revisions:
 TODO:
 
 - Change the scroller colour to red for errors.
-- Impliment use of the second ESP32 core for updating the display.
-- Try to smooth out the scroller while TeamSpeak functions are used by replacing delay()
-  with a custom funtion that calls drawDisplay() while waiting for the specified time when
-  using a single core in case the second core can not be implimented easilly.
+- Impliment use of the second ESP32 core for updating the display. I may get round to this
+  but it's not high importance now the scroller does not pause.
 - Make the display turn off after a minute to save power.
 - Turn the display back on with a press of button A.
 - Turn the display back on if a client enters or leaves the TeamSpeak server.
