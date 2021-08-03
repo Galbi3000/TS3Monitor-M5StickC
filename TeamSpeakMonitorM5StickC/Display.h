@@ -57,7 +57,6 @@ void scrollMessage(String message)
 
 void drawDisplay()
 {
-  displayUpdating = 1;
   if (redrawAll)
   {
     redrawAll = 0;
@@ -166,14 +165,32 @@ void drawDisplay()
   }
   #endif
   //lcd.display();
-  displayUpdating = 0;
 }
 
 void updateDisplay()
 {
-  if (millis() - timeoutDisplay > displayRefresh)
+  if(displayEnabled)
   {
-    drawDisplay();
-    timeoutDisplay = millis();
+    if (millis() - timeoutDisplay > displayRefresh)
+    {
+      drawDisplay();
+      timeoutDisplay = millis();
+    }
+  }
+}
+
+void pause(unsigned long pauseTime)
+{   // Same as delay() but also updates the display while waiting
+  unsigned long pauseEnd = millis() + pauseTime;
+  while (millis() < pauseEnd)
+  {
+    if (displayEnabled)
+    {
+      if (millis() - timeoutDisplay > displayRefresh)
+      {
+        drawDisplay();
+        timeoutDisplay = millis();
+      }
+    }
   }
 }
