@@ -4,7 +4,13 @@ The Arduino IDE would not let me include a text file as a tab so I went with thi
 
 TeamSpeakMonitorM5StickC Revisions
 
-Current version 3.22
+Current version 3.23
+
+3.23 - Display now switching off when there are no clients. Setting the brightness did nothing so I
+       had to quickly learn how to turn the display off properly using the AXP chip in the device.
+       Now I know how to do this it will be a simple matter of implimenting the display off timer
+       with wake on button press. It already wakes on client updates or TS3 connection errors with
+       this update!
 
 3.22 - Fixed smooth scrolling pausing during calls to the TeamSpeak server. I chose to simply call
        updateDisplay() during loops in the TeamSpeak functions. This meant re-ordering the include
