@@ -12,6 +12,7 @@ String sendCommand(String command)
   timeout = millis();
   while (telnet.available() == 0)
   {
+    updateDisplay();
     if (millis() - timeout > 1500)
       return "error msg=timeout";
   }
@@ -36,6 +37,7 @@ String sendCommand(String command)
   timeout = millis();
   while (telnet.available() == 0)
   {
+    updateDisplay();
     if (millis() - timeout > 250)
       break;
   }
@@ -86,6 +88,7 @@ void loginServerQuery()
   int timeout = millis();
   while (telnet.available() == 0)
   {
+    updateDisplay();
     if (millis() - timeout > 1500)
     {
       sprintln(">>> Telnet timeout!");
@@ -102,6 +105,7 @@ void loginServerQuery()
   timeout = millis();
   while (telnet.available() == 0)
   {
+    updateDisplay();
     if (millis() - timeout > 500)
       break;
   }
@@ -237,6 +241,7 @@ void refreshChannels()
 
       while(doLoop)
       {
+        updateDisplay();
         channelData = "";
         for (; i<response.length(); i++)
         {
@@ -300,6 +305,7 @@ void refreshClients()
   
         while(doLoop)
         {
+          updateDisplay();
           clientData = "";
           for (; i<response.length(); i++)
           {
