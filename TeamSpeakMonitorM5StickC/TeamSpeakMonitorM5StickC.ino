@@ -158,6 +158,7 @@ void setup()
   timeoutClient = millis() + clientRefresh;  // Do the same for client list refreshing
   errorCount = 0;
   reconnectCount = 0;
+  oldNumClients = -1; // Make sure it thinks the number of clients changed so the screen can be turned off if there are none to start!
 
   // Display a finished message on the OLED screen and wait 3 seconds to allow reading of the screen
   lcd.setTextColor(TFT_GREEN);
@@ -170,6 +171,8 @@ void setup()
 
   redrawAll = 1;        // Make sure the display is redrawn fully on the first update
   displayEnabled = true;
+  screenPower = true;
+  oldScreenPower = true;
 }
 
 void loop()
@@ -209,7 +212,7 @@ void loop()
     message += "........    " + message;
     scrollMessage(message);
   }
-  else if (numClients > oldNumClients)  // Someone logged in
+  else if (numClients > oldNumClients && oldNumClients >= 0)  // Someone logged in
   {
     String message = "";
     for (int i = 0; i < numClients; i++)
@@ -245,11 +248,14 @@ void loop()
       clients[i].clientName = "";
     }
     oldNumClients = numClients;
-    if(numClients == 0)
-      lcd.setBrightness(0);
-    else
-      lcd.setBrightness(96);
     redrawAll = 1;  // Redraw the display fully to update the client count.
+    if(numClients == 0)
+      screenPower = false;
+    else
+    {
+      screenPower = true;
+      M5.Axp.SetLDO2(screenPower);
+    }
   }
 
   M5.IMU.getAccelData(&accX,&accY,&accZ);
@@ -276,6 +282,11 @@ void loop()
 
   if (errorCount >= 5)
   {
+    if(!screenPower)
+    {
+      screenPower = true;
+      M5.Axp.SetLDO2(screenPower);
+    }
     sprintln("Attempting to regain communications with TeamSpeak Server.");
     loginOK = false;
     telnet.stop();
@@ -318,4 +329,20 @@ void loop()
     LEDState = 0;    
   if (state != LEDState)
     digitalWrite(LED, LEDState);
+
+  if (oldScreenPower)
+    sprintln("oldScreenPower = true");
+  else
+    sprintln("oldScreenPower = false");
+  if (screenPower)
+    sprintln("screenPower = true");
+  else
+    sprintln("screenPower = false");
+    
+  // Turn the screen on or off
+  if (screenPower != oldScreenPower && !showScroller)
+  {
+    oldScreenPower = screenPower;
+    M5.Axp.SetLDO2(screenPower);
+  }
 }

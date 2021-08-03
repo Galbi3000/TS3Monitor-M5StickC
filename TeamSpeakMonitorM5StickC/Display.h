@@ -21,6 +21,8 @@ LGFX_Sprite scrollerCanvas;
 #if USE_SMOOTH_SCROLL
 int32_t cursor_x;
 
+boolean screenPower, oldScreenPower;
+
 void initScroller()
 {
   scrollerCanvas.setColorDepth(8);
