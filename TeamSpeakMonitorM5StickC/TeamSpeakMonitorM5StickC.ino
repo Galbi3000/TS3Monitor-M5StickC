@@ -25,13 +25,12 @@
  */
 
 #define SERIAL_ON 0
-//#define DISPLAY_ON_TIMER 0
 #define USE_SMOOTH_SCROLL 1
 
 #include "Globals.h"
+#include "Display.h"
 #include "TeamSpeakFunctions.h"
 #include "HTMLFunctions.h"
-#include "Display.h"
 
 void setup()
 {
@@ -170,18 +169,7 @@ void setup()
 //  showScroller = 3;
 
   redrawAll = 1;        // Make sure the display is redrawn fully on the first update
-  #if DISPLAY_ON_TIMER
-  if(!initDisplayTimer())   // If the display is on a timer interrupt then this will initialize the timer
-  {
-    lcd.setTextSize(1);
-    lcd.setTextColor(TFT_RED);
-    lcd.println("Unable to set display timer!");
-    lcd.println("Please recompile with");
-    lcd.println("different timer settings.");
-    while(true);  // Go into an endless loop, no point continuing at this point!
-  }
-  #endif
-
+  displayEnabled = true;
 }
 
 void loop()
@@ -257,6 +245,10 @@ void loop()
       clients[i].clientName = "";
     }
     oldNumClients = numClients;
+    if(numClients == 0)
+      lcd.setBrightness(0);
+    else
+      lcd.setBrightness(96);
     redrawAll = 1;  // Redraw the display fully to update the client count.
   }
 
@@ -306,7 +298,7 @@ void loop()
         sprintln("");
         sprint("Reconnecting to WiFi");
   
-        delay(500);
+        pause(500);
         sprint(".");
       }  
       sprintln("");
