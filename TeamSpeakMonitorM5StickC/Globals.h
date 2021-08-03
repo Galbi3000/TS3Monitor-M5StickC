@@ -93,9 +93,9 @@ String scrollerDisplay, scrollerMessage, currentScroller;
 int showScroller = 0; // Set this to the number of times a message should scroll past the screen.
 int scrollerPos = 0;  // Position in the message for the scroller display.
 unsigned long timeoutDisplay;
-int displayUpdating = 0;
 int redrawAll = 1;
 int screenRotation = 1;
+boolean displayEnabled = false;
 // The following 3 variables are for detecting the orientation movement of the M5StickC for setting
 // the screen rotation variable above.
 float accX = 0.0F;
