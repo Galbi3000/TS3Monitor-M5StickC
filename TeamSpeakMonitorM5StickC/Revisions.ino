@@ -105,13 +105,6 @@ TODO:
 
 BUGS:
 
-- Smooth scroll has small pauses while the TeamSpeak server is being contacted for updates.
-  To fix this issue I tried setting up a timer interrupt but that crashes the device with a
-  Guru Meditation Error! I learnt that this is because a timer can not do complex tasks like
-  drawing to an LCD screen. I plan to try using the second core instead as that should allow
-  more complex tasks. Alternatively replacing delay() with my own function that updates the
-  display while waiting should also fix this issue.
-
 - Names with extended characters like é, è, ö, etc. do not display correctly.
   This seems to be an issue with the way the WiFi libraries process telnet data, perhaps telnet
   does not permit these characters!
