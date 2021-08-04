@@ -28,12 +28,12 @@ String content;
 
 // Support up to 128 channels and 32 clients. 32 clients is the max for a free TeamSpeak server.
 // These can be increased as long as microcontroler has enough RAM!
-#define maxChannels 128
-#define maxClients 32
+#define SERVER_MAX_CHANNELS 128
+#define SERVER_MAX_CLIENTS 32
 
 // Refresh times for channel and client lists. (1000 = 1 second)
-#define channelRefresh 30000
-#define clientRefresh 4000
+#define CHANNEL_REFRESH 30000
+#define CLIENT_REFRESH 4000
 
 typedef struct
 {
@@ -61,9 +61,9 @@ int loginOK, errorCount = 0, reconnectCount = 0;
 
 String ts3ServerName;
 
-ts3Channel channels[maxChannels]; // List of channels on the server
-ts3Client clients[maxClients];    // List of clients connected to the server
-String oldNames[maxClients];      // Old list of names for tracking people leaving/joining the server
+ts3Channel channels[SERVER_MAX_CHANNELS]; // List of channels on the server
+ts3Client clients[SERVER_MAX_CLIENTS];    // List of clients connected to the server
+String oldNames[SERVER_MAX_CLIENTS];      // Old list of names for tracking people leaving/joining the server
 
 int numChannels;          // The number of channels on the server
 int numClients;           // The number of clients logged in to the server
@@ -84,15 +84,17 @@ unsigned long timeoutChan, timeoutClient;
 
 // Refresh time for the OLED scroller display. (1000 = 1 second)
 #if USE_SMOOTH_SCROLL
-#define displayRefresh 10
+#define DISPLAY_REFRESH 10
 #else
-#define displayRefresh 200
+#define DISPLAY_REFRESH 200
 #endif
+
+#define POWER_SAVE_INTERVAL 60000 // 60 seconds
 
 String scrollerDisplay, scrollerMessage, currentScroller;
 int showScroller = 0; // Set this to the number of times a message should scroll past the screen.
 int scrollerPos = 0;  // Position in the message for the scroller display.
-unsigned long timeoutDisplay;
+unsigned long timeoutDisplay, displayOnTime;
 int redrawAll = 1;
 int screenRotation = 1;
 boolean displayEnabled = false;

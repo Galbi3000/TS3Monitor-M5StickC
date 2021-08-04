@@ -193,11 +193,11 @@ void processChannels(int pid)
   }
 }
 
-// Ask the TS3 server for a list of channels (interval defined in channelRefresh)
+// Ask the TS3 server for a list of channels (interval defined in CHANNEL_REFRESH)
 void refreshChannels()
 {
   String response;
-  if (millis() - timeoutChan > channelRefresh && loginOK)
+  if (millis() - timeoutChan > CHANNEL_REFRESH && loginOK)
   {
     // Send the serverinfo command to get the server's name
     sprintln("Retrieve server info");
@@ -263,7 +263,7 @@ void refreshChannels()
         channels[numChannels].channelName = extractData(channelData, "channel_name");
 
         numChannels++;
-        if (i == response.length() || numChannels == maxChannels)
+        if (i == response.length() || numChannels == SERVER_MAX_CHANNELS)
           doLoop = false;
       }
     }
@@ -271,11 +271,11 @@ void refreshChannels()
   }
 }
 
-// Ask the TS3 server for a list of clients (interval defined in channelRefresh)
+// Ask the TS3 server for a list of clients (interval defined in CHANNEL_REFRESH)
 void refreshClients()
 {
   String response;
-  if (millis() - timeoutClient > clientRefresh)
+  if (millis() - timeoutClient > CLIENT_REFRESH)
   {
     sprint("errorCount = ");
     sprintln(String(errorCount));

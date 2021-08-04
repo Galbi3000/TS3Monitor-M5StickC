@@ -4,8 +4,21 @@ The Arduino IDE would not let me include a text file as a tab so I went with thi
 
 TeamSpeakMonitorM5StickC Revisions
 
-Current version 3.23
+Current version 3.30
 
+3.30 - Display switches off after 60 seconds of inactivity. The timer starts from when the screen
+       is turned on or from when a scroller messages ends to make sure the screen can not turn off
+       while a long message is being scrolled in case the timer has been reduced to 30 seconds for
+       example or the slower character jump scroller is being used instead of the pixel smooth one!
+     - Now wakes the display on button press.
+     - If the button is pressed while the display is on a list of people logged in will be scrolled.
+
+Bugs:  Before this update, after starting up with clients already on the TS3 server it would think
+       they had just logged in and so scroll a list of names in the normal way when people log in.
+       For some reason this does not happen anymore! I could take advantage of this and instead of
+       showing everyone just logged in, display a list of names in the same way as when the button
+       is pressed.
+     
 3.23 - Display now switching off when there are no clients. Setting the brightness did nothing so I
        had to quickly learn how to turn the display off properly using the AXP chip in the device.
        Now I know how to do this it will be a simple matter of implimenting the display off timer
@@ -99,20 +112,14 @@ TODO:
 - Change the scroller colour to red for errors.
 - Impliment use of the second ESP32 core for updating the display. I may get round to this
   but it's not high importance now the scroller does not pause.
-- Make the display turn off after a minute to save power.
-- Turn the display back on with a press of button A.
 - Add a battery status indicator to the display.
 
-BUGS:
+KNOWN BUG:
 
-- Names with extended characters like é, è, ö, etc. do not display correctly.
-  This seems to be an issue with the way the WiFi libraries process telnet data, perhaps telnet
-  does not permit these characters!
+Names with extended characters like é, è, ö, etc. do not display correctly.
+This seems to be an issue with the way the WiFi libraries process telnet data, perhaps telnet does
+not permit these characters!
 
-- If the display redraw is on a timer then it stops working after a while! For now it's been
-  disabled with #define DISPLAY_ON_TIMER 0. Setting this to 1 will re-enable the timer.
-
-- Sometimes when a user logs in or out the name is not displayed in the scrolling message.
-  Very intermittent! (Might be fixed in update 2.31, time will tell!)
+I am unable to fix this as it's not this sketch doing it.
 
 */

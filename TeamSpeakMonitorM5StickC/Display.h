@@ -4,19 +4,11 @@
 #define LGFX_M5STICK_C
 #include <LovyanGFX.hpp>
 
-//#include "FreeSerif9pt7b.h"
-//#define TITLE_FONT FreeSerif9pt7b
 #define TITLE_FONT fonts::FreeSerif9pt7b
 
 #define OLED_RESET LED_BUILTIN  //4
 LGFX lcd;
 LGFX_Sprite scrollerCanvas;
-
-/*
-#if (SSD1306_LCDHEIGHT != 64)
-#error("Height incorrect, please fix Adafruit_SSD1306.h!");
-#endif
-*/
 
 #if USE_SMOOTH_SCROLL
 int32_t cursor_x;
@@ -134,7 +126,8 @@ void drawDisplay()
       }
     }
     scrollerCanvas.pushSprite(&lcd, 0, 54);
-  }
+    displayOnTime = millis();  // Make sure the display power save timer is reset so the display will not turn off on long messages!
+ }
   #else // Use old character jump scroller method
   if (showScroller)
   {
@@ -164,35 +157,28 @@ void drawDisplay()
     lcd.setTextSize(2);
     lcd.setCursor(0,56);
     lcd.print(scrollerDisplay);
+    displayOnTime = millis();  // Make sure the display power save timer is reset so the display will not turn off on long messages!
   }
   #endif
-  //lcd.display();
 }
 
 void updateDisplay()
 {
   if(displayEnabled)
   {
-    if (millis() - timeoutDisplay > displayRefresh)
+    if (millis() - timeoutDisplay > DISPLAY_REFRESH)
     {
       drawDisplay();
       timeoutDisplay = millis();
     }
   }
+  if (millis() - displayOnTime > POWER_SAVE_INTERVAL)
+    screenPower = false;
 }
 
 void pause(unsigned long pauseTime)
 {   // Same as delay() but also updates the display while waiting
   unsigned long pauseEnd = millis() + pauseTime;
   while (millis() < pauseEnd)
-  {
-    if (displayEnabled)
-    {
-      if (millis() - timeoutDisplay > displayRefresh)
-      {
-        drawDisplay();
-        timeoutDisplay = millis();
-      }
-    }
-  }
+    updateDisplay();
 }

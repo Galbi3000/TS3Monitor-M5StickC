@@ -34,7 +34,6 @@
 
 void setup()
 {
-
   // Start the serial connection
   #if SERIAL_ON
   Serial.begin(115200);
@@ -154,8 +153,8 @@ void setup()
   // Telnet Client for TeamSpeak 3 ServerQuery
   loginServerQuery();
 
-  timeoutChan = millis() + channelRefresh;   // Set the timeout for Channel list refresh so that it's run once at start
-  timeoutClient = millis() + clientRefresh;  // Do the same for client list refreshing
+  timeoutChan = millis() + CHANNEL_REFRESH;   // Set the timeout for Channel list refresh so that it's run once at start
+  timeoutClient = millis() + CLIENT_REFRESH;  // Do the same for client list refreshing
   errorCount = 0;
   reconnectCount = 0;
   oldNumClients = -1; // Make sure it thinks the number of clients changed so the screen can be turned off if there are none to start!
@@ -173,10 +172,13 @@ void setup()
   displayEnabled = true;
   screenPower = true;
   oldScreenPower = true;
+  displayOnTime = millis();
 }
 
 void loop()
 {
+  String message; // Just so it's not being defined in 3 different places!
+  
   // HTTP first
   server.handleClient();  // Done, HTTP server handling is easy in loop()!
 
@@ -191,7 +193,7 @@ void loop()
 
   if (numClients < oldNumClients)       // Someone logged out
   {
-    String message = "";
+    message = "";
     for (int i = 0; i < oldNumClients; i++)
     {
       int found = 0;
@@ -211,10 +213,16 @@ void loop()
     message += " logged out.";
     message += "........    " + message;
     scrollMessage(message);
+    if(!screenPower)
+    {
+      screenPower = true;
+      M5.Axp.SetLDO2(screenPower);
+      displayOnTime = millis();
+    }
   }
   else if (numClients > oldNumClients && oldNumClients >= 0)  // Someone logged in
   {
-    String message = "";
+    message = "";
     for (int i = 0; i < numClients; i++)
     {
       int found = 0;
@@ -242,7 +250,7 @@ void loop()
     for (i = 0; i < numClients; i++)
       oldNames[i] = clients[i].clientName;
     // Make sure the ends of the lists are empty, may cause issues if there are names still in place that shouldn't be there
-    for (; i < maxClients; i++)
+    for (; i < SERVER_MAX_CLIENTS; i++)
     {
       oldNames[i] = "";
       clients[i].clientName = "";
@@ -255,29 +263,33 @@ void loop()
     {
       screenPower = true;
       M5.Axp.SetLDO2(screenPower);
+      displayOnTime = millis();
     }
   }
 
-  M5.IMU.getAccelData(&accX,&accY,&accZ);
-
-  if (accX > 0.4 && screenRotation != 1)
+  if(displayEnabled)
   {
-    screenRotation = 1;
-    lcd.setRotation(screenRotation);
-    redrawAll = 1;  // Redraw the display fully to update the rotation.
-    sprintln("");
-    sprintln("Screen rotation: 1");
- }
-  else if (accX < -0.4 && screenRotation != 3)
-  {
-    screenRotation = 3;
-    lcd.setRotation(screenRotation);
-    redrawAll = 1;  // Redraw the display fully to update rotation.
-    sprintln("");
-    sprintln("Screen rotation: 3");
+    M5.IMU.getAccelData(&accX,&accY,&accZ);
+  
+    if (accX > 0.4 && screenRotation != 1)
+    {
+      screenRotation = 1;
+      lcd.setRotation(screenRotation);
+      redrawAll = 1;  // Redraw the display fully to update the rotation.
+      sprintln("");
+      sprintln("Screen rotation: 1");
+   }
+    else if (accX < -0.4 && screenRotation != 3)
+    {
+      screenRotation = 3;
+      lcd.setRotation(screenRotation);
+      redrawAll = 1;  // Redraw the display fully to update rotation.
+      sprintln("");
+      sprintln("Screen rotation: 3");
+    }
   }
-
-  // Update the display (the function handles timing)
+  
+  // Update the display (the function handles timing of the display refresh and power save)
   updateDisplay();
 
   if (errorCount >= 5)
@@ -286,6 +298,7 @@ void loop()
     {
       screenPower = true;
       M5.Axp.SetLDO2(screenPower);
+      displayOnTime = millis();
     }
     sprintln("Attempting to regain communications with TeamSpeak Server.");
     loginOK = false;
@@ -322,6 +335,41 @@ void loop()
     ESP.restart();
   }
 
+  M5.update();
+  pause(10);
+  if (M5.BtnA.isPressed())
+  {
+    sprintln("Button pressed");
+    while (M5.BtnA.isPressed())
+    {
+      M5.update();
+      pause(10);
+    }
+    if (!screenPower)
+    {
+//      if (numClients > 0)  // Only turn on if there are clients online
+        screenPower = true;
+    }
+    else
+    {
+      // If the screen is on, show a list of client names in scroller
+      refreshClients();
+      if (numClients)
+      {
+        message = "";
+        for (int i = 0; i < numClients; i++)
+        {
+          if (message == "")
+            message = clients[i].clientName;
+          else
+            message += ", " + clients[i].clientName;
+        }
+        message = "Clients online: " + message;
+        scrollMessage(message);
+      }
+    }
+  }
+  
   int state = LEDState;
   if (clientCount == 0 && LEDState == 0)
     LEDState = 1;
@@ -330,19 +378,12 @@ void loop()
   if (state != LEDState)
     digitalWrite(LED, LEDState);
 
-  if (oldScreenPower)
-    sprintln("oldScreenPower = true");
-  else
-    sprintln("oldScreenPower = false");
-  if (screenPower)
-    sprintln("screenPower = true");
-  else
-    sprintln("screenPower = false");
-    
   // Turn the screen on or off
   if (screenPower != oldScreenPower && !showScroller)
   {
     oldScreenPower = screenPower;
     M5.Axp.SetLDO2(screenPower);
+    if (screenPower)
+      displayOnTime = millis();
   }
 }
