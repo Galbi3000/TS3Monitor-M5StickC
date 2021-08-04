@@ -20,11 +20,13 @@ Planned features in comming updates:
 How to use:
 - Open up the Arduino IDE and chose from the file menu "Open..."
 - Navigate to where you downloaded the Git project and in the folder "TeamSpeakMonitorM5StickC" select the .ino file of the same name as the folder.
-- Go to the Globals.h tab and replace "your-ssid" with the ID of your WiFi connection and replace "your-password" with the password.
+- Go to the Globals.h tab and replace "your-ssid" with the ID of your WiFi connection and replace "your-pass" with the password.
 - Further down in the file change telnetHost address to the address of your TS3 Server.
-- Next edit the queryLogin and queryPass entries to match the credentials given to you by your TS3 server for remote queries.
+- Next edit the queryLogin and queryPass entries to match the credentials given to you by your TS3 server for remote queries. (See note below)
 - Make sure the correct device is selected in the Tools menu and its correct COM port is selected.
 - Compile and upload the sketch.
+
+Note:  If you do not have the serveradmin credentials for server queries that are given out by the server on first bootup after install (along with the server admin token) then an administrator can give remote query access to a user on the server, it will produce a password for them to use to login to the query server. Set queryLogin to the user name and queryPass to the password given.
 
 Here is a photo of the M5StickC running the sketch:
 ![image](https://github.com/Galbi3000/TS3Monitor-M5StickC/blob/main/TS3Monitor-M5StickC.jpg)
