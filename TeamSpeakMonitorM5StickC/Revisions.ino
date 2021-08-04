@@ -4,14 +4,25 @@ The Arduino IDE would not let me include a text file as a tab so I went with thi
 
 TeamSpeakMonitorM5StickC Revisions
 
-Current version 3.30
+Current version 3.31
+
+3.31 - Added feature to show a list of clients online after device bootup.
+     - Changed button screen wakeup to also display the list of clients to save having to press
+       the button twice.
+     - Changed the logged in/out scroller messages to only display once. Now a list of clients
+       can be called at will the scroller does not need a repeat in case the name is missed.
+     - Fixed a bug where the screen remained powered up after bootup if there were no clients.
+     - Fixed a bug where the screen would not come on as soon as the button was pressed after
+       adding the client list on button press. The bug appeared after the button press client list
+       feature was added. The wake on button press had been tested fully before adding that.
 
 3.30 - Display switches off after 60 seconds of inactivity. The timer starts from when the screen
        is turned on or from when a scroller messages ends to make sure the screen can not turn off
        while a long message is being scrolled in case the timer has been reduced to 30 seconds for
        example or the slower character jump scroller is being used instead of the pixel smooth one!
      - Now wakes the display on button press.
-     - If the button is pressed while the display is on a list of people logged in will be scrolled.
+     - Added a scroller message of a list of clients logged in when the button is press while the
+       screen is on.
 
 Bugs:  Before this update, after starting up with clients already on the TS3 server it would think
        they had just logged in and so scroll a list of names in the normal way when people log in.
@@ -113,6 +124,7 @@ TODO:
 - Impliment use of the second ESP32 core for updating the display. I may get round to this
   but it's not high importance now the scroller does not pause.
 - Add a battery status indicator to the display.
+- See if the LED brightness can be reduced to save power.
 
 KNOWN BUG:
 

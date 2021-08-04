@@ -211,7 +211,7 @@ void loop()
       }
     }
     message += " logged out.";
-    message += "........    " + message;
+//    message += "........    " + message;
     scrollMessage(message);
     if(!screenPower)
     {
@@ -240,9 +240,30 @@ void loop()
       }
     }
     message += " logged in.";
-    message += "........    " + message;
+//    message += "........    " + message;
     scrollMessage(message);
   }
+  else if (oldNumClients == -1)
+  {
+    // If the screen is on, show a list of client names in scroller
+    if (numClients)
+    {
+      message = "";
+      for (int i = 0; i < numClients; i++)
+      {
+        if (message == "")
+          message = clients[i].clientName;
+        else
+          message += ", " + clients[i].clientName;
+      }
+      message = "Clients online: " + message;
+      scrollMessage(message);
+    }
+    oldNumClients = 0;
+    if(numClients == 0)
+      screenPower = false;
+  }
+
 
   if (oldNumClients != numClients)
   {
@@ -347,26 +368,23 @@ void loop()
     }
     if (!screenPower)
     {
-//      if (numClients > 0)  // Only turn on if there are clients online
-        screenPower = true;
+      screenPower = true;
+      M5.Axp.SetLDO2(screenPower);
+      displayOnTime = millis();
     }
-    else
+    // If the screen is on, show a list of client names in scroller
+    if (numClients)
     {
-      // If the screen is on, show a list of client names in scroller
-      refreshClients();
-      if (numClients)
+      message = "";
+      for (int i = 0; i < numClients; i++)
       {
-        message = "";
-        for (int i = 0; i < numClients; i++)
-        {
-          if (message == "")
-            message = clients[i].clientName;
-          else
-            message += ", " + clients[i].clientName;
-        }
-        message = "Clients online: " + message;
-        scrollMessage(message);
+        if (message == "")
+          message = clients[i].clientName;
+        else
+          message += ", " + clients[i].clientName;
       }
+      message = "Clients online: " + message;
+      scrollMessage(message);
     }
   }
   
