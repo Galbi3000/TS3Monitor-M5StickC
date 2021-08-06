@@ -73,6 +73,7 @@ void setup()
   #if USE_SMOOTH_SCROLL
   initScroller();
   #endif
+  initBatDisplay();
 
   lcd.clearDisplay();           // Clears the display buffer
   lcd.setTextSize(2);           // Set the text size to 2
@@ -171,8 +172,10 @@ void setup()
   redrawAll = 1;        // Make sure the display is redrawn fully on the first update
   displayEnabled = true;
   screenPower = true;
-  oldScreenPower = true;
+//  oldScreenPower = true;
   displayOnTime = millis();
+  timeoutBattery = millis();
+  batteryCharge = 90;
 }
 
 void loop()
@@ -210,15 +213,8 @@ void loop()
           message += ", " + oldNames[i];
       }
     }
-    message += " logged out.";
-//    message += "........    " + message;
+    message = ".......... " + message + " logged out ..........";
     scrollMessage(message);
-    if(!screenPower)
-    {
-      screenPower = true;
-      M5.Axp.SetLDO2(screenPower);
-      displayOnTime = millis();
-    }
   }
   else if (numClients > oldNumClients && oldNumClients >= 0)  // Someone logged in
   {
@@ -239,13 +235,12 @@ void loop()
           message += ", " + clients[i].clientName;
       }
     }
-    message += " logged in.";
-//    message += "........    " + message;
+    message = ".......... " + message + " logged in ..........";
     scrollMessage(message);
   }
   else if (oldNumClients == -1)
   {
-    // If the screen is on, show a list of client names in scroller
+    oldNumClients = 0;
     if (numClients)
     {
       message = "";
@@ -256,14 +251,12 @@ void loop()
         else
           message += ", " + clients[i].clientName;
       }
-      message = "Clients online: " + message;
+      message = ".......... Clients online: " + message + " ..........";
       scrollMessage(message);
     }
-    oldNumClients = 0;
-    if(numClients == 0)
-      screenPower = false;
+    else
+      setScreenPower(false);
   }
-
 
   if (oldNumClients != numClients)
   {
@@ -278,17 +271,9 @@ void loop()
     }
     oldNumClients = numClients;
     redrawAll = 1;  // Redraw the display fully to update the client count.
-    if(numClients == 0)
-      screenPower = false;
-    else
-    {
-      screenPower = true;
-      M5.Axp.SetLDO2(screenPower);
-      displayOnTime = millis();
-    }
   }
 
-  if(displayEnabled)
+  if(displayEnabled && screenPower)  // Maybe can save some power by only reading accel data while the screen is on
   {
     M5.IMU.getAccelData(&accX,&accY,&accZ);
   
@@ -311,16 +296,11 @@ void loop()
   }
   
   // Update the display (the function handles timing of the display refresh and power save)
-  updateDisplay();
+  if (screenPower)
+    updateDisplay();
 
   if (errorCount >= 5)
   {
-    if(!screenPower)
-    {
-      screenPower = true;
-      M5.Axp.SetLDO2(screenPower);
-      displayOnTime = millis();
-    }
     sprintln("Attempting to regain communications with TeamSpeak Server.");
     loginOK = false;
     telnet.stop();
@@ -366,12 +346,7 @@ void loop()
       M5.update();
       pause(10);
     }
-    if (!screenPower)
-    {
-      screenPower = true;
-      M5.Axp.SetLDO2(screenPower);
-      displayOnTime = millis();
-    }
+
     // If the screen is on, show a list of client names in scroller
     if (numClients)
     {
@@ -383,7 +358,7 @@ void loop()
         else
           message += ", " + clients[i].clientName;
       }
-      message = "Clients online: " + message;
+      message = ".......... Clients online: " + message + " ..........";
       scrollMessage(message);
     }
   }
@@ -396,12 +371,14 @@ void loop()
   if (state != LEDState)
     digitalWrite(LED, LEDState);
 
-  // Turn the screen on or off
-  if (screenPower != oldScreenPower && !showScroller)
+  // Update the battery state here if BATTERY_CHECK_INTERVAL has been reached
+  if (millis() - timeoutBattery > BATTERY_CHECK_INTERVAL)
   {
-    oldScreenPower = screenPower;
-    M5.Axp.SetLDO2(screenPower);
-    if (screenPower)
-      displayOnTime = millis();
+    timeoutBattery = millis();
+    int charge = M5.Axp.GetVapsData();
+    if (charge > 3000)
+      batteryCharge = 100;
+    else
+      batteryCharge = charge / 30;
   }
 }

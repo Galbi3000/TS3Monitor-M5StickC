@@ -4,17 +4,31 @@ The Arduino IDE would not let me include a text file as a tab so I went with thi
 
 TeamSpeakMonitorM5StickC Revisions
 
-Current version 3.31
+Current version 3.32
+
+3.32 - Made the title show all the time the screen is on.
+     - Added a battery status indicator in the upper right corner of the display.
+     - Reduced the screen on time to 30 seconds to save more power.
+     - Recreated the screen power control system to use a single function to turn it on/off.
+     - Changes to the message scroller: Now scrollMessage() will turn the screen on. The scroller
+       routine in drawDisplay() will switch the screen off if there are no clients logged in when the
+       scroller has finished.
+     - The above two points have fixed the bug introduced in the previous version.
+     - Known Issue: For some reason the battery data jumps to around 3500 when powered by USB but
+       instantly drops to < 3000 when unplugged! I will have to look at another method of calculating
+       the charge so it can show the battery filling up while plugged in instead of instantly full!
 
 3.31 - Added feature to show a list of clients online after device bootup.
      - Changed button screen wakeup to also display the list of clients to save having to press
        the button twice.
      - Changed the logged in/out scroller messages to only display once. Now a list of clients
        can be called at will the scroller does not need a repeat in case the name is missed.
-     - Fixed a bug where the screen remained powered up after bootup if there were no clients.
      - Fixed a bug where the screen would not come on as soon as the button was pressed after
        adding the client list on button press. The bug appeared after the button press client list
        feature was added. The wake on button press had been tested fully before adding that.
+     - BUG: There is an introduced bug where the screen does not power off after waking up to show
+       the last client logged out. I am having a hard time pinpointing this one without the ability
+       to debug properly, using breakpoints and stepping through the code while looking at variables!
 
 3.30 - Display switches off after 60 seconds of inactivity. The timer starts from when the screen
        is turned on or from when a scroller messages ends to make sure the screen can not turn off

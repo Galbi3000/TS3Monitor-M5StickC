@@ -8,12 +8,26 @@
 
 #define OLED_RESET LED_BUILTIN  //4
 LGFX lcd;
-LGFX_Sprite scrollerCanvas;
+LGFX_Sprite scrollerCanvas, batteryCanvas;
+
+boolean screenPower;
+
+void setScreenPower(boolean power)
+{
+  if (power == screenPower)
+    return;
+
+  screenPower = power;
+
+  M5.Axp.SetLDO2(power);
+  M5.Axp.SetLDO3(power);
+
+  if (power)
+    displayOnTime = millis();
+}
 
 #if USE_SMOOTH_SCROLL
 int32_t cursor_x;
-
-boolean screenPower, oldScreenPower;
 
 void initScroller()
 {
@@ -34,6 +48,7 @@ void scrollMessage(String message)
   }
   scrollerMessage += message;
   scrollerMessage += "              ";
+  setScreenPower(true);
 }
 
 #else  // The old scroller routine needs buffers of spaces begining and end of the message to scroll on and off the screen
@@ -46,8 +61,42 @@ void scrollMessage(String message)
   }
   scrollerMessage += message;
   scrollerMessage += "              ";
+  setScreenPower(true);
 }
 #endif
+
+void initBatDisplay()
+{
+  batteryCanvas.setColorDepth(8);
+  batteryCanvas.createSprite(25,15);
+}
+
+void drawBattery()
+{
+  batteryCanvas.fillRect(0, 0, 24, 14, BLACK);
+  batteryCanvas.drawRect(0, 0, 22, 9, WHITE);
+  batteryCanvas.drawPixel(21, 0, LIGHTGREY);
+  batteryCanvas.drawPixel(21, 8, LIGHTGREY);
+  batteryCanvas.drawLine(22, 3, 22, 5, WHITE);
+  // Don't draw anything else if the battery is dead!
+  if (batteryCharge > 0)
+  {
+    int colour;
+    if (batteryCharge > 75)
+      colour = GREEN;
+    else if (batteryCharge > 50)
+      colour = YELLOW;
+    else if (batteryCharge > 25)
+      colour = ORANGE;
+    else if (batteryCharge > 0)
+      colour = RED;
+  
+    batteryCanvas.fillRect(1, 1, batteryCharge/5, 7, colour);
+  }
+
+  // Paint the image to the main display
+  batteryCanvas.pushSprite(&lcd, lcd.width() - 26, 4);
+}
 
 void drawDisplay()
 {
@@ -57,13 +106,14 @@ void drawDisplay()
     lcd.clearDisplay();
     lcd.setFont(&TITLE_FONT);
     lcd.setTextSize(1);
+    lcd.setCursor(2,2);
+    lcd.setTextColor(CYAN);   // Set the text colour to cyan.
+    lcd.println("TS3 Monitor");
+    lcd.setTextColor(WHITE);
+    
     if (numClients)
     {
-      lcd.setCursor(2,2);
-      lcd.setTextColor(TFT_CYAN);   // Set the text colour to cyan.
-      lcd.println("TS3 Monitor");
       lcd.setCursor(0,24);
-      lcd.setTextColor(TFT_WHITE);
       lcd.print(numClients);
       lcd.print(" client");
       if(numClients > 1)
@@ -76,7 +126,7 @@ void drawDisplay()
       lcd.setCursor(2,2);
       lcd.println("TS3 Monitor");
       lcd.setCursor(100,24);
-      lcd.setTextColor(TFT_RED);
+      lcd.setTextColor(RED);
       lcd.print("E");
       lcd.print(errorCount);
     }
@@ -87,6 +137,10 @@ void drawDisplay()
   #if USE_SMOOTH_SCROLL
   if (showScroller)
   {
+    if (errorCount)
+      scrollerCanvas.setTextColor(RED);
+    else
+      scrollerCanvas.setTextColor(YELLOW);
     if (currentScroller == "")
     {
       currentScroller = scrollerMessage;
@@ -121,16 +175,23 @@ void drawDisplay()
         if (!showScroller)
         {
           currentScroller = "";
-          scrollerCanvas.clear(TFT_BLACK);
+          scrollerCanvas.clear(BLACK);
+          if (numClients == 0)
+            setScreenPower(false);
+          else
+            displayOnTime = millis();
         }
       }
     }
     scrollerCanvas.pushSprite(&lcd, 0, 54);
-    displayOnTime = millis();  // Make sure the display power save timer is reset so the display will not turn off on long messages!
- }
+  }
   #else // Use old character jump scroller method
   if (showScroller)
   {
+    if (errorCount)
+      lcd.setTextColor(RED);
+    else
+      lcd.setTextColor(YELLOW);
     if (currentScroller == "")
     {
       currentScroller = scrollerMessage;
@@ -151,13 +212,16 @@ void drawDisplay()
       if (!showScroller)
       {
         currentScroller = "";
+        if (numClients == 0)
+          setScreenPower(false);
+        else
+          displayOnTime = millis();
       }
     }
     lcd.fillRect(0, 54, lcd.width(), lcd.height()-54, TFT_BLACK);
     lcd.setTextSize(2);
     lcd.setCursor(0,56);
     lcd.print(scrollerDisplay);
-    displayOnTime = millis();  // Make sure the display power save timer is reset so the display will not turn off on long messages!
   }
   #endif
 }
@@ -171,9 +235,10 @@ void updateDisplay()
       drawDisplay();
       timeoutDisplay = millis();
     }
+    drawBattery();
   }
-  if (millis() - displayOnTime > POWER_SAVE_INTERVAL)
-    screenPower = false;
+  if (millis() - displayOnTime > POWER_SAVE_INTERVAL && screenPower && !showScroller)
+    setScreenPower(false);
 }
 
 void pause(unsigned long pauseTime)

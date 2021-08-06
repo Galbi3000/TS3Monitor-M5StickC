@@ -70,10 +70,9 @@ int numClients;           // The number of clients logged in to the server
 int oldNumClients;        // For tracking people leaving/joining the server
 int clientCount;          // The number of clients that are not Glabi!
 
-const int statusLED = 2;  // The on board blue LED
 const int LED = 10;       // The LED used to indicate users logged on to TS.
 
-int statusLEDState;
+int LEDlit = 0;
 int LEDState;
 
 unsigned long timeoutChan, timeoutClient;
@@ -89,12 +88,13 @@ unsigned long timeoutChan, timeoutClient;
 #define DISPLAY_REFRESH 200
 #endif
 
-#define POWER_SAVE_INTERVAL 60000 // 60 seconds
+#define POWER_SAVE_INTERVAL 30000     // Screen on for 30 seconds before shutting off (starts at end of message scrollers)
+#define BATTERY_CHECK_INTERVAL 15000  // Check the battery state every 15 seconds
 
 String scrollerDisplay, scrollerMessage, currentScroller;
 int showScroller = 0; // Set this to the number of times a message should scroll past the screen.
 int scrollerPos = 0;  // Position in the message for the scroller display.
-unsigned long timeoutDisplay, displayOnTime;
+unsigned long timeoutDisplay, timeoutBattery, displayOnTime;
 int redrawAll = 1;
 int screenRotation = 1;
 boolean displayEnabled = false;
@@ -103,6 +103,7 @@ boolean displayEnabled = false;
 float accX = 0.0F;
 float accY = 0.0F;
 float accZ = 0.0F;
+int batteryCharge;
 
 //
 // Global Functions
