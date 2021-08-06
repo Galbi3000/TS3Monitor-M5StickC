@@ -359,8 +359,10 @@ void loop()
           message += ", " + clients[i].clientName;
       }
       message = ".......... Clients online: " + message + " ..........";
-      scrollMessage(message);
     }
+    else
+      message = ".......... Nobody is online right now ..........";
+    scrollMessage(message);
   }
   
   int state = LEDState;
