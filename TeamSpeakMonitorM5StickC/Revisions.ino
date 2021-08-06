@@ -4,7 +4,10 @@ The Arduino IDE would not let me include a text file as a tab so I went with thi
 
 TeamSpeakMonitorM5StickC Revisions
 
-Current version 3.32
+Current version 3.33
+
+3.33 - Added a message on button press if nobody is logged in to the TS3 server. Without this it
+       looked like the device was powered off because nothing happened!
 
 3.32 - Made the title show all the time the screen is on.
      - Added a battery status indicator in the upper right corner of the display.
@@ -21,6 +24,7 @@ Current version 3.32
 3.31 - Added feature to show a list of clients online after device bootup.
      - Changed button screen wakeup to also display the list of clients to save having to press
        the button twice.
+     - Changes scroller colour to red for error messages.
      - Changed the logged in/out scroller messages to only display once. Now a list of clients
        can be called at will the scroller does not need a repeat in case the name is missed.
      - Fixed a bug where the screen would not come on as soon as the button was pressed after
@@ -134,10 +138,8 @@ TeamSpeakMonitor revisions:
        
 TODO:
 
-- Change the scroller colour to red for errors.
 - Impliment use of the second ESP32 core for updating the display. I may get round to this
   but it's not high importance now the scroller does not pause.
-- Add a battery status indicator to the display.
 - See if the LED brightness can be reduced to save power.
 
 KNOWN BUG:
