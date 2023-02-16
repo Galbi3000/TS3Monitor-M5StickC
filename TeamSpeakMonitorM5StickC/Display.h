@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
-#define LGFX_M5STICK_C
+#define LGFX_AUTODETECT
 #include <LovyanGFX.hpp>
 
 #define TITLE_FONT fonts::FreeSerif9pt7b
